@@ -32,12 +32,12 @@ services:
       postgres:
         condition: service_healthy
     env_file:
-      - ./docker/orchestrator/orchestrator.env # contains DB URI
+      - ./docker/orchestrator/orchestrator.env
     environment:
       DATABASE_URI: postgresql://nwa:nwa@postgres:5432/orchestrator-core
       PYTHONPATH: /home/orchestrator
       SLACK_ENGINE_SETTINGS_HOOK_ENABLED: "True"
-      SLACK_ENGINE_SETTINGS_HOOK_URL: "your-slack-webhook-url-goes-here"
+      SLACK_ENGINE_SETTINGS_HOOK_URL: "your-slack-webhook-url"
     ports:
       - "8080:8080"
     volumes:
