@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:14
+    container_name: orchestrator-db
+    environment:
+      POSTGRES_USER: nwa
+      POSTGRES_PASSWORD: nwa
+      POSTGRES_DB: orchestrator-core
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "--username",
+          "nwa",
+          "--dbname",
+          "orchestrator-core",
+        ]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+      start_period: 5s
+
+  orchestrator:
+    image: ghcr.io/workfloworchestrator/orchestrator-core:latest
+    container_name: orchestrator
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./docker/orchestrator/orchestrator.env # contains DB URI
+    environment:
+      DATABASE_URI: postgresql://nwa:nwa@postgres:5432/orchestrator-core
+      PYTHONPATH: /home/orchestrator
+      SLACK_ENGINE_SETTINGS_HOOK_ENABLED: "True"
+      SLACK_ENGINE_SETTINGS_HOOK_URL: "your-slack-webhook-url-goes-here"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./workflows:/home/orchestrator/workflows
+      - ./products:/home/orchestrator/products
+      - ./migrations:/home/orchestrator/migrations
+      - ./docker:/home/orchestrator/etc
+      - ./main.py:/home/orchestrator/main.py
+      - ./services:/home/orchestrator/services
+      - ./requirements.txt:/home/orchestrator/requirements.txt
+      - ./alembic.ini:/home/orchestrator/alembic.ini
+      - ./translations:/home/orchestrator/translations
+      - ./templates:/home/orchestrator/templates
+      - ./docker/orchestrator/.bashrc:/home/orchestrator/.bashrc
+      - ${CORE_DIR:-./docker/overrides/orchestrator-core}:/home/orchestrator/orchestrator-core
+    entrypoint: ["/home/orchestrator/etc/orchestrator/entrypoint.sh"]
+    healthcheck:
+      start_period: 15s
+      timeout: 5s
+      interval: 5s
+      retries: 20
+      test: /home/orchestrator/etc/orchestrator/is_healthy.py
+volumes:
+  db-data:

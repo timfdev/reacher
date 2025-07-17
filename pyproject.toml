@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "reacher"
+version = "0.1.0"
+description = "Lead outreach workflow, UI, and orchestrator integration."
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+packages = [
+    { include = "products" },
+    { include = "ui" },
+    { include = "workflows" },
+]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.14"
+orchestrator-core = ">=4.1.0,<5.0.0"
+streamlit = ">=1.46.1,<2.0.0"
+requests = ">=2.32.4,<3.0.0"
+beautifulsoup4 = ">=4.13.4,<5.0.0"
+
+[tool.poetry.group.dev.dependencies]
+ruff = ">=0.12.3,<0.13.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
